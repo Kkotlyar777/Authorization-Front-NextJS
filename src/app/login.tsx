@@ -1,39 +1,25 @@
 'use client';
 
-import style from './page.module.sass';
+import style from './login.module.sass';
 import Link from 'next/link';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import Login from './googleAuth/Login';
-import { useEffect } from 'react';
-import { gapi } from 'gapi-script';
+import GoogleAuth from '@/app/googleAuth/Login';
 
-// const clientId =
-// 	'976675945184-ka7p24vmmgqc9efr6809ilsm9tp422b0.apps.googleusercontent.com';
-
-export default function Register() {
-	// useEffect(() => {
-	// 	function start() {
-	// 		gapi.client.init({
-	// 			clientId: clientId,
-	// 			scope: ''
-	// 		});
-	// 	}
-
-	// 	gapi.load('client:auth2', start);
-	// });
-
-	interface Iform {
-		email: string;
+export default function login() {
+	interface IformLogin {
 		name: string;
 		password: string;
 	}
 
-	const { register, handleSubmit, reset } = useForm<Iform>();
+	const { register, handleSubmit, reset } = useForm<IformLogin>();
 
-	const onSubmit: SubmitHandler<Iform> = (data) => {
-		setisLoading(true);
-		fetch('http://localhost:4000/api/register', {
+	const [isError, setisError] = useState(false);
+	const [isdata, setisdata] = useState(false);
+	const [isClicked, setisClicked] = useState(false);
+
+	const onSubmit: SubmitHandler<IformLogin> = (data) => {
+		fetch('http://localhost:4000/api/login', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -42,82 +28,40 @@ export default function Register() {
 		})
 			.then((response) => response.json())
 			.then((data) => {
-				if (!data) return;
-				setisSuccess(true);
+				alert(data);
+				console.log(data);
 				reset();
-			})
-			.finally(() => {
-				setisLoading(false);
+				setisdata(data.email);
 			});
 	};
-
-	const [isSuccess, setisSuccess] = useState(false);
-	const [isLoading, setisLoading] = useState(false);
-	const [isClicked, setisClicked] = useState(false);
 
 	return (
 		<div className={style.backDiv}>
 			<div className={style.mainDiv}>
 				<form onSubmit={handleSubmit(onSubmit)}>
-					{isSuccess ? (
-						<div className={style.isRegister}>
-							<span>
-								Вы успешно зарегистрированы! <br />
-								Для входа перейдите по{' '}
-								<Link href={'/Login'} style={{ color: 'white' }}>
-									ссылке
-								</Link>
-								.
-							</span>
-						</div>
+					{isError ? (
+						<></>
 					) : (
 						<>
 							<div className={style.titleDiv}>
-								<span className={style.titleReg}>РЕГИСТРАЦИЯ</span>
 								<span className={style.title}>
 									<Link
-										href={'/Login'}
+										href={'/'}
 										style={{ textDecoration: 'none', color: 'black' }}
 									>
-										ВХОД
+										РЕГИСТРАЦИЯ
 									</Link>
 								</span>
+								<span className={style.titleLog}>ВХОД</span>
 							</div>
 							<div className={style.mainForm}>
-								<div className={style.loginInput}>
-									<input
-										type="email"
-										placeholder="Введите e-mail:"
-										{...register('email')}
-										required
-										style={{
-											width: '258px',
-											paddingLeft: '15px',
-											boxSizing: 'border-box',
-										}}
-									/>
-									<div
-										style={{
-											width: '16px',
-											height: '16px',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-										}}
-									>
-										<img role="img" src="/email.svg" />
-									</div>
-								</div>
 								<div className={style.loginInput}>
 									<input
 										type="name"
 										placeholder="Введите логин:"
 										required
 										{...register('name')}
-										style={{
-											paddingLeft: '15px',
-											boxSizing: 'border-box',
-										}}
+										style={{ boxSizing: 'border-box', paddingLeft: '15px' }}
 									/>
 									<div
 										style={{
@@ -139,8 +83,8 @@ export default function Register() {
 										{...register('password')}
 										style={{
 											width: '258px',
-											paddingLeft: '15px',
 											boxSizing: 'border-box',
+											paddingLeft: '15px',
 										}}
 									/>
 									<div
@@ -167,17 +111,15 @@ export default function Register() {
 								</div>
 							</div>
 							<div className={style.botForm}>
-								<button disabled={isLoading} className={style.logInBtn}>
-									{isLoading ? 'Загрузка...' : 'Регистрация'}
-								</button>
+								<button className={style.logInBtn}>Войти</button>
 								<span className={style.bottomSpan}></span>
-								{/* <button className={style.logWithGoggle}>
+								<button className={style.logWithGoggle}>
 									<img src="/GoogleICO.png" />
 									<span>
 										Продолжить с <b>Google</b>
 									</span>
-								</button> */}
-								<Login />
+								</button>
+								<GoogleAuth />
 							</div>
 						</>
 					)}
